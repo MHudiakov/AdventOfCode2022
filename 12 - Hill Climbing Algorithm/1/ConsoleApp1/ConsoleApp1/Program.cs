@@ -1,8 +1,8 @@
 ﻿using ConsoleApp1;
 
 var input = File.ReadAllLines(@"c:\aoc/1.txt");
-var map = new Ceil[input.Length, input.First().Length];
-var checkQueue = new Queue<Ceil>();
+var map = new Cell[input.Length, input.First().Length];
+var checkQueue = new Queue<Cell>();
 
 // Read map
 for (int i = 0; i < input.Length; i++)
@@ -11,11 +11,11 @@ for (int i = 0; i < input.Length; i++)
     {
         var name = input[i][j];
 
-        var ceil = new Ceil();
-        ceil.Name = name;
-        ceil.X = i;
-        ceil.Y = j;
-        ceil.Height = name switch
+        var cell = new Cell();
+        cell.Name = name;
+        cell.X = i;
+        cell.Y = j;
+        cell.Height = name switch
         {
             'S' => 0,
             'E' => 25,
@@ -24,10 +24,10 @@ for (int i = 0; i < input.Length; i++)
 
         if (name == 'S')
         {
-            checkQueue.Enqueue(ceil);
+            checkQueue.Enqueue(cell);
         }
 
-        map[i,j] = ceil;
+        map[i,j] = cell;
     }
 }
 
@@ -35,49 +35,49 @@ for (int i = 0; i < input.Length; i++)
 int result = 0;
 while (checkQueue.Any())
 {
-    var ceil = checkQueue.Dequeue();
-    if (ceil.Name == 'E')
+    var cell = checkQueue.Dequeue();
+    if (cell.Name == 'E')
     {
-        result = ceil.VisitStep;
+        result = cell.VisitStep;
         break;
     }
 
-    if (ceil.Visited)
+    if (cell.Visited)
     {
         continue;
     }
 
-    ceil.Visited = true;
+    cell.Visited = true;
 
-    if (ceil.X > 0)
+    if (cell.X > 0)
     {
-        var upCeil = map[ceil.X - 1, ceil.Y];
-        ProcessCeil(upCeil, ceil);
+        var upCell = map[cell.X - 1, cell.Y];
+        ProcessCell(upCell, cell);
     }
 
-    if (ceil.X < map.GetLength(0) - 1)
+    if (cell.X < map.GetLength(0) - 1)
     {
-        var downCeil = map[ceil.X + 1, ceil.Y];
-        ProcessCeil(downCeil, ceil);
+        var downCell = map[cell.X + 1, cell.Y];
+        ProcessCell(downCell, cell);
     }
 
-    if (ceil.Y > 0)
+    if (cell.Y > 0)
     {
-        var leftCeil = map[ceil.X, ceil.Y - 1];
-        ProcessCeil(leftCeil, ceil);
+        var leftCell = map[cell.X, cell.Y - 1];
+        ProcessCell(leftCell, cell);
     }
 
-    if (ceil.Y < map.GetLength(1) - 1)
+    if (cell.Y < map.GetLength(1) - 1)
     {
-        var rightCeil = map[ceil.X, ceil.Y + 1];
-        ProcessCeil(rightCeil, ceil);
+        var rightCell = map[cell.X, cell.Y + 1];
+        ProcessCell(rightCell, cell);
     }
 }
 
 Console.WriteLine(result);
 Console.ReadLine();
 
-void ProcessCeil(Ceil processed, Ceil current)
+void ProcessCell(Cell processed, Cell current)
 {
     if (!processed.Visited && processed.Height - current.Height <= 1)
     {

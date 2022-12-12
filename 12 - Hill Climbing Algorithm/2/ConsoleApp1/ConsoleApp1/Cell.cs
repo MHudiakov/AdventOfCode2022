@@ -1,6 +1,6 @@
 ﻿namespace ConsoleApp1
 {
-    internal class Ceil
+    internal class Cell
     {
         public char Name { get; set; }
 
