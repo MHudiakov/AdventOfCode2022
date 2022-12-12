@@ -2,7 +2,7 @@
 
 var input = File.ReadAllLines(@"c:\aoc/1.txt");
 var map = new Cell[input.Length, input.First().Length];
-var startCells = new List<Cell>();
+var checkQueue = new Queue<Cell>();
 
 // Read map
 for (int i = 0; i < input.Length; i++)
@@ -22,87 +22,66 @@ for (int i = 0; i < input.Length; i++)
             _ => name - 97
         };
 
-        if (name is 'S' or 'a')
+        if (name == 'E')
         {
-            startCells.Add(cell);
+            checkQueue.Enqueue(cell);
         }
 
-        map[i,j] = cell;
+        map[i, j] = cell;
     }
 }
 
 // Process
-int shortestRouteLength = int.MaxValue;
-
-foreach (var startCell in startCells)
+int result = 0;
+while (checkQueue.Any())
 {
-    var routeLength = 0;
-    var checkQueue = new Queue<Cell>();
-    checkQueue.Enqueue(startCell);
-
-    while (checkQueue.Any())
+    var cell = checkQueue.Dequeue();
+    if (cell.Name == 'a')
     {
-        var cell = checkQueue.Dequeue();
-        if (cell.Name == 'E')
-        {
-            routeLength = cell.VisitStep;
-            break;
-        }
-
-        if (cell.X > 0)
-        {
-            var upCell = map[cell.X - 1, cell.Y];
-            ProcessCell(upCell, cell, checkQueue);
-        }
-
-        if (cell.X < map.GetLength(0) - 1)
-        {
-            var downCell = map[cell.X + 1, cell.Y];
-            ProcessCell(downCell, cell, checkQueue);
-        }
-
-        if (cell.Y > 0)
-        {
-            var leftCell = map[cell.X, cell.Y - 1];
-            ProcessCell(leftCell, cell, checkQueue);
-        }
-
-        if (cell.Y < map.GetLength(1) - 1)
-        {
-            var rightCell = map[cell.X, cell.Y + 1];
-            ProcessCell(rightCell, cell, checkQueue);
-        }
+        result = cell.VisitStep;
+        break;
     }
 
-    if (routeLength < shortestRouteLength && routeLength > 0)
+    if (cell.Visited)
     {
-        shortestRouteLength = routeLength;
+        continue;
     }
 
-    CleanMap(map);
+    cell.Visited = true;
+
+    if (cell.X > 0)
+    {
+        var upCell = map[cell.X - 1, cell.Y];
+        ProcessCell(upCell, cell);
+    }
+
+    if (cell.X < map.GetLength(0) - 1)
+    {
+        var downCell = map[cell.X + 1, cell.Y];
+        ProcessCell(downCell, cell);
+    }
+
+    if (cell.Y > 0)
+    {
+        var leftCell = map[cell.X, cell.Y - 1];
+        ProcessCell(leftCell, cell);
+    }
+
+    if (cell.Y < map.GetLength(1) - 1)
+    {
+        var rightCell = map[cell.X, cell.Y + 1];
+        ProcessCell(rightCell, cell);
+    }
 }
 
-Console.WriteLine(shortestRouteLength);
+Console.WriteLine(result);
 Console.ReadLine();
 
-void ProcessCell(Cell processing, Cell current, Queue<Cell> checkQueue)
+void ProcessCell(Cell processed, Cell current)
 {
-    if (!processing.Visited && processing.Height - current.Height <= 1)
+    if (!processed.Visited && processed.Height - current.Height >= -1)
     {
-        processing.VisitStep = current.VisitStep + 1;
-        processing.Visited = true;
-        checkQueue.Enqueue(processing);
-    }
-}
-
-void CleanMap(Cell[,] map)
-{
-    for (int i = 0; i < map.GetLength(0); i++)
-    {
-        for (int j = 0; j < map.GetLength(1); j++)
-        {
-            map[i, j].Visited = false;
-            map[i, j].VisitStep = 0;
-        }
+        processed.VisitStep = current.VisitStep + 1;
+        checkQueue.Enqueue(processed);
     }
 }
