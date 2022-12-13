@@ -18,7 +18,7 @@ foreach (var package in input)
 
     for (int i = orderedList.Count - 1; i >= 0; i--)
     {
-        if (CheckOrder(package, orderedList[i]).result)
+        if (CheckOrder(package, orderedList[i]).Value)
         {
             if (i == 0)
             {
@@ -39,13 +39,13 @@ var decoderKey = (orderedList.IndexOf(dividerPacket1) + 1) * (orderedList.IndexO
 Console.WriteLine(decoderKey);
 Console.ReadLine();
 
-(bool result, bool goFurther) CheckOrder(List<object> left, List<object> right)
+bool? CheckOrder(List<object> left, List<object> right)
 {
     for (int i = 0; i < left.Count; i++)
     {
         if (right.Count < i + 1)
         {
-            return (false, false);
+            return false;
         }
 
         var lItem = left[i];
@@ -55,12 +55,12 @@ Console.ReadLine();
         {
             if ((int)lItem < (int)rItem)
             {
-                return (true, false);
+                return true;
             }
 
             if ((int)lItem > (int)rItem)
             {
-                return (false, false);
+                return false;
             }
         }
         else
@@ -69,7 +69,7 @@ Console.ReadLine();
             var r = rItem is int ? new List<object> { (int)rItem } : (List<object>)rItem;
             var check = CheckOrder(l, r);
 
-            if (!check.goFurther)
+            if (check.HasValue)
             {
                 return check;
             }
@@ -78,10 +78,10 @@ Console.ReadLine();
 
     if (right.Count > left.Count)
     {
-        return (true, false);
+        return true;
     }
 
-    return (false, true);
+    return null;
 }
 
 (List<object> list, int offset) ParseLine(string line)
