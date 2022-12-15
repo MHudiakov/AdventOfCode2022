@@ -38,7 +38,7 @@ Console.ReadLine();
 
         if (x is >= 0 and <= beaconMaxPosition && y1 is >= 0 and <= beaconMaxPosition)
         {
-            if (CheckPoint(x, y1, points))
+            if (IsPointDetected(x, y1, points))
             {
                 return (x, y1);
             }
@@ -46,7 +46,7 @@ Console.ReadLine();
 
         if (x is >= 0 and <= beaconMaxPosition && y2 is >= 0 and <= beaconMaxPosition)
         {
-            if (CheckPoint(x, y2, points))
+            if (IsPointDetected(x, y2, points))
             {
                 return (x, y2);
             }
@@ -56,7 +56,7 @@ Console.ReadLine();
     return null;
 }
 
-bool CheckPoint(int x, int y, List<(int x, int y, int distance)> sensors)
+bool IsPointDetected(int x, int y, List<(int x, int y, int distance)> sensors)
 {
     return sensors.All(sensor => ManhattanDistance(x, y, sensor.x, sensor.y) > sensor.distance);
 }
