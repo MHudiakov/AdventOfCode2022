@@ -14,9 +14,7 @@ foreach (var line in File.ReadLines(@"c:\aoc/1.txt"))
     }
 }
 
-caloriesList.Sort();
-caloriesList.Reverse();
-var result = caloriesList.Take(3).Sum();
+var result = caloriesList.OrderByDescending(i => i).Take(3).Sum();
 
 Console.WriteLine(result);
 Console.ReadLine();
