@@ -2,40 +2,31 @@
 
 for (int i = 0; i < numbers.Count; i++)
 {
-    for (int j = 0; j < numbers.Count; j++)
-    {
-        if (!numbers[j].moved)
-        {
-            var value = numbers[j].value;
-            numbers.RemoveAt(j);
+    var number = numbers.First(n => n.position == i);
+    var currentPosition = numbers.IndexOf(number);
+    numbers.RemoveAt(currentPosition);
 
-            var insertPosition = 0;
-            if (j + value > 0)
-            {
-                insertPosition = (j + value) % numbers.Count;
-            }
-            else
-            {
-                insertPosition = numbers.Count + (j + value) % numbers.Count;
-            }
+    var insertPosition = (currentPosition + number.value > 0)
+        ? (currentPosition + number.value) % numbers.Count
+        : numbers.Count + (currentPosition + number.value) % numbers.Count;
 
-            numbers.Insert(insertPosition, (value, true));
-            break;
-        }
-    }
+    numbers.Insert((int)insertPosition, number);
 }
 
-var c1 = numbers[(1000 % numbers.Count + numbers.IndexOf((0, true))) % numbers.Count].value;
-var c2 = numbers[(2000 % numbers.Count + numbers.IndexOf((0, true))) % numbers.Count].value;
-var c3 = numbers[(3000 % numbers.Count + numbers.IndexOf((0, true))) % numbers.Count].value;
-
-int groveCoordinatesSum = c1 + c2 + c3;
+int indexOfZero = numbers.FindIndex(n => n.value == 0);
+long groveCoordinatesSum = new[] { 1000, 2000, 3000 }.Select(i => numbers[(i % numbers.Count + indexOfZero) % numbers.Count].value).Sum();
 
 Console.WriteLine(groveCoordinatesSum);
-Console.ReadLine();
 
-List<(int value, bool moved)> ReadInput()
+List<(long value, int position)> ReadInput()
 {
-    return File.ReadAllLines(@"c:\aoc/1.txt")
-        .Select(line => (int.Parse(line), false)).ToList();
+    int position = 0;
+    var input = new List<(long value, int position)>();
+    foreach (var line in File.ReadAllLines(@"c:\aoc/1.txt"))
+    {
+        input.Add((long.Parse(line), position));
+        position++;
+    }
+
+    return input;
 }
