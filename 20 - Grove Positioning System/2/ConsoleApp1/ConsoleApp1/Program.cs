@@ -19,11 +19,7 @@ for (int k = 0; k < numberOfMixes; k++)
 }
 
 int indexOfZero = numbers.FindIndex(n => n.value == 0);
-var c1 = numbers[(1000 % numbers.Count + indexOfZero) % numbers.Count].value;
-var c2 = numbers[(2000 % numbers.Count + indexOfZero) % numbers.Count].value;
-var c3 = numbers[(3000 % numbers.Count + indexOfZero) % numbers.Count].value;
-
-long groveCoordinatesSum = c1 + c2 + c3;
+long groveCoordinatesSum = new[] { 1000, 2000, 3000 }.Select(i => numbers[(i % numbers.Count + indexOfZero) % numbers.Count].value).Sum();
 
 Console.WriteLine(groveCoordinatesSum);
 
