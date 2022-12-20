@@ -25,13 +25,5 @@ Console.WriteLine(groveCoordinatesSum);
 
 List<(long value, int position)> ReadInput()
 {
-    int position = 0;
-    var input = new List<(long value, int position)>();
-    foreach (var line in File.ReadAllLines(@"c:\aoc/1.txt"))
-    {
-        input.Add((long.Parse(line) * decryptionKey, position));
-        position++;
-    }
-
-    return input;
+    return File.ReadAllLines(@"c:\aoc/1.txt").Select((line, index) => (decryptionKey * long.Parse(line), index)).ToList();
 }
