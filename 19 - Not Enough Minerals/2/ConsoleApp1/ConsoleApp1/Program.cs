@@ -24,7 +24,7 @@ int DetermineMaxGeodeNumber(Blueprint blueprint)
     var states = new List<State> { initState };
     for (int minute = 0; minute < workTime; minute++)
     {
-        states = CalcStates(states, blueprint, minute);
+        states = CalcStates(states, blueprint);
     }
 
     return states.Max(s => s.GeodeAmount);
@@ -41,17 +41,11 @@ List<State> CalcStates(List<State> states, Blueprint blueprint)
         if (state.ObsidianAmount >= blueprint.GeodeRobotObsidianPrice &&
             state.OreAmount >= blueprint.GeodeRobotOrePrice)
         {
-            candidateStates.Add(new State
-            {
-                OreRobotAmount = state.OreRobotAmount,
-                ObsidianRobotAmount = state.ObsidianRobotAmount,
-                ClayRobotAmount = state.ClayRobotAmount,
-                GeodeRobotAmount = state.GeodeRobotAmount + 1,
-                ObsidianAmount = state.ObsidianAmount + state.ObsidianRobotAmount - blueprint.GeodeRobotObsidianPrice,
-                GeodeAmount = state.GeodeAmount + state.GeodeRobotAmount,
-                ClayAmount = state.ClayAmount + state.ClayRobotAmount,
-                OreAmount = state.OreAmount + state.OreRobotAmount - blueprint.GeodeRobotOrePrice
-            });
+            var newState = CreateNewState(state);
+            newState.GeodeRobotAmount++;
+            newState.ObsidianAmount -= blueprint.GeodeRobotObsidianPrice;
+            newState.OreAmount -= blueprint.GeodeRobotOrePrice;
+            candidateStates.Add(newState);
         }
         else
         {
@@ -59,33 +53,20 @@ List<State> CalcStates(List<State> states, Blueprint blueprint)
                 state.ClayAmount >= blueprint.ObsidianRobotClayPrice &&
                 state.OreAmount >= blueprint.ObsidianRobotOrePrice)
             {
-                candidateStates.Add(new State
-                {
-                    OreRobotAmount = state.OreRobotAmount,
-                    ObsidianRobotAmount = state.ObsidianRobotAmount + 1,
-                    ClayRobotAmount = state.ClayRobotAmount,
-                    GeodeRobotAmount = state.GeodeRobotAmount,
-                    ObsidianAmount = state.ObsidianAmount + state.ObsidianRobotAmount,
-                    GeodeAmount = state.GeodeAmount + state.GeodeRobotAmount,
-                    ClayAmount = state.ClayAmount + state.ClayRobotAmount - blueprint.ObsidianRobotClayPrice,
-                    OreAmount = state.OreAmount + state.OreRobotAmount - blueprint.ObsidianRobotOrePrice
-                });
+                var newState = CreateNewState(state);
+                newState.ObsidianRobotAmount++;
+                newState.ClayAmount -= blueprint.ObsidianRobotClayPrice;
+                newState.OreAmount -= blueprint.ObsidianRobotOrePrice;
+                candidateStates.Add(newState);
             }
 
             if (state.ClayRobotAmount < blueprint.ObsidianRobotClayPrice &&
                 state.OreAmount >= blueprint.ClayRobotOrePrice)
             {
-                candidateStates.Add(new State
-                {
-                    OreRobotAmount = state.OreRobotAmount,
-                    ObsidianRobotAmount = state.ObsidianRobotAmount,
-                    ClayRobotAmount = state.ClayRobotAmount + 1,
-                    GeodeRobotAmount = state.GeodeRobotAmount,
-                    ObsidianAmount = state.ObsidianAmount + state.ObsidianRobotAmount,
-                    GeodeAmount = state.GeodeAmount + state.GeodeRobotAmount,
-                    ClayAmount = state.ClayAmount + state.ClayRobotAmount,
-                    OreAmount = state.OreAmount + state.OreRobotAmount - blueprint.ClayRobotOrePrice
-                });
+                var newState = CreateNewState(state);
+                newState.ClayRobotAmount++;
+                newState.OreAmount -= blueprint.ClayRobotOrePrice;
+                candidateStates.Add(newState);
             }
 
             var maxOreRobotAmount = new[]
@@ -97,17 +78,10 @@ List<State> CalcStates(List<State> states, Blueprint blueprint)
             if (state.OreRobotAmount < maxOreRobotAmount &&
                 state.OreAmount >= blueprint.OreRobotOrePrice)
             {
-                candidateStates.Add(new State
-                {
-                    OreRobotAmount = state.OreRobotAmount + 1,
-                    ObsidianRobotAmount = state.ObsidianRobotAmount,
-                    ClayRobotAmount = state.ClayRobotAmount,
-                    GeodeRobotAmount = state.GeodeRobotAmount,
-                    ObsidianAmount = state.ObsidianAmount + state.ObsidianRobotAmount,
-                    GeodeAmount = state.GeodeAmount + state.GeodeRobotAmount,
-                    ClayAmount = state.ClayAmount + state.ClayRobotAmount,
-                    OreAmount = state.OreAmount + state.OreRobotAmount - blueprint.OreRobotOrePrice
-                });
+                var newState = CreateNewState(state);
+                newState.OreRobotAmount++;
+                newState.OreAmount -= blueprint.OreRobotOrePrice;
+                candidateStates.Add(newState);
             }
 
             if (state.OreAmount <= blueprint.OreRobotOrePrice || state.OreAmount <= blueprint.ClayRobotOrePrice ||
@@ -115,20 +89,10 @@ List<State> CalcStates(List<State> states, Blueprint blueprint)
                 state.ClayAmount <= blueprint.ObsidianRobotClayPrice ||
                 state.ObsidianAmount <= blueprint.GeodeRobotObsidianPrice)
             {
-                candidateStates.Add(new State
-                {
-                    OreRobotAmount = state.OreRobotAmount,
-                    ObsidianRobotAmount = state.ObsidianRobotAmount,
-                    ClayRobotAmount = state.ClayRobotAmount,
-                    GeodeRobotAmount = state.GeodeRobotAmount,
-                    ObsidianAmount = state.ObsidianAmount + state.ObsidianRobotAmount,
-                    GeodeAmount = state.GeodeAmount + state.GeodeRobotAmount,
-                    ClayAmount = state.ClayAmount + state.ClayRobotAmount,
-                    OreAmount = state.OreAmount + state.OreRobotAmount
-                });
+                candidateStates.Add(CreateNewState(state));
             }
         }
-        
+
         foreach (var candidate in candidateStates)
         {
             bool addState = true;
@@ -153,6 +117,21 @@ List<State> CalcStates(List<State> states, Blueprint blueprint)
     }
 
     return newStates;
+}
+
+State CreateNewState(State previousState)
+{
+    return new State
+    {
+        OreRobotAmount = previousState.OreRobotAmount,
+        ObsidianRobotAmount = previousState.ObsidianRobotAmount,
+        ClayRobotAmount = previousState.ClayRobotAmount,
+        GeodeRobotAmount = previousState.GeodeRobotAmount,
+        ObsidianAmount = previousState.ObsidianAmount + previousState.ObsidianRobotAmount,
+        GeodeAmount = previousState.GeodeAmount + previousState.GeodeRobotAmount,
+        ClayAmount = previousState.ClayAmount + previousState.ClayRobotAmount,
+        OreAmount = previousState.OreAmount + previousState.OreRobotAmount
+    };
 }
 
 List<Blueprint> ReadInput()
