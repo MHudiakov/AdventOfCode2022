@@ -1,4 +1,5 @@
-﻿using ConsoleApp1;
+﻿using System.Numerics;
+using ConsoleApp1;
 
 var monkeys = ReadInput();
 const string humanName = "humn";
@@ -9,22 +10,44 @@ human.Operation = "x";
 human.Number = null;
 rootMonkey.Operation = rootMonkey.Operation.Replace("+", "=");
 
-
-
-
-foreach (var monkey in monkeys)
+for (int i = 0; i < 25; i++)
 {
-    if (int.TryParse(monkey.Operation, out int number))
+    foreach (var monkey in monkeys)
     {
-        foreach (var m in monkeys.Where(m => m.Operation.Contains(monkey.Name)))
+        if (BigInteger.TryParse(monkey.Operation, out _))
         {
-            m.Operation = m.Operation.Replace(monkey.Name, monkey.Operation);
+            foreach (var m in monkeys.Where(m => m.Operation.Contains(monkey.Name)))
+            {
+                m.Operation = m.Operation.Replace(monkey.Name, monkey.Operation);
+            }
+        }
+    }
+
+    foreach (var monkey in monkeys)
+    {
+        if (BigInteger.TryParse(monkey.Operation, out _) || monkey.Operation == "x")
+        {
+            continue;
+        }
+
+        var values = monkey.Operation.Split(' ');
+        var leftOperandStr = values[0];
+        var rightOperandStr = values[2];
+        var operation = values[1];
+
+        if (BigInteger.TryParse(leftOperandStr, out BigInteger leftOperand) && BigInteger.TryParse(rightOperandStr, out BigInteger rightOperand))
+        {
+            monkey.Operation = operation switch
+            {
+                "+" => BigInteger.Add(leftOperand, rightOperand).ToString(),
+                "-" => BigInteger.Subtract(leftOperand, rightOperand).ToString(),
+                "*" => BigInteger.Multiply(leftOperand, rightOperand).ToString(),
+                "/" => BigInteger.Divide(leftOperand, rightOperand).ToString(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }
-
-
-
 
 var monkeyNames = monkeys.Select(m => m.Name).ToList();
 while (monkeyNames.Any(rootMonkey.Operation.Contains))
@@ -38,28 +61,16 @@ while (monkeyNames.Any(rootMonkey.Operation.Contains))
 
         if (rootMonkey.Operation.Contains(monkey.Name))
         {
-            rootMonkey.Operation = rootMonkey.Operation.Replace(monkey.Name, int.TryParse(monkey.Operation, out _)? monkey.Operation : $"({monkey.Operation})");
+            rootMonkey.Operation = rootMonkey.Operation.Replace(monkey.Name,
+                BigInteger.TryParse(monkey.Operation, out _) || monkey.Operation == "x"
+                    ? monkey.Operation
+                    : $"({monkey.Operation})");
         }
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Console.WriteLine("Please solve this equation somehow, for example here: https://www.dcode.fr/equation-solver and you'll get the answer.");
+Console.WriteLine();
 Console.WriteLine(rootMonkey.Operation);
 
 List<Monkey> ReadInput()
