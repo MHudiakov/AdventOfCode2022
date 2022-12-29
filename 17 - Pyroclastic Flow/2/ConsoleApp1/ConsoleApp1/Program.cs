@@ -90,10 +90,6 @@ while(true)
     }
 }
 
-Console.WriteLine();
-Console.ReadLine();
-
-
 int? TryFindPattern(char[,] map)
 {
     var height = GetTowerHeight(map);
@@ -225,8 +221,7 @@ void PutFigureOnMap(char[,] map, char[,] figure, int figureX, int figureY)
 
 char[] ReadInput()
 {
-    var input = File.ReadAllText(@"c:\aoc/1.txt").ToCharArray();
-    return input;
+    return File.ReadAllText(@"c:\aoc/1.txt").ToCharArray();
 }
 
 int GetTowerHeight(char[,] map)
